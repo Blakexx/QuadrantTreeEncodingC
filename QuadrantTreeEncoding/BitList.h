@@ -91,6 +91,10 @@ public:
         delete container;
     }
 
+    size_t length() {
+        return bitLength;
+    }
+
     template<typename T>
     void set(size_t index, T value) {
         set<T,sizeof(T)*8>(index,value);
@@ -107,6 +111,25 @@ public:
 
     bool get(size_t index) {
         return *get<bool, 1>(index);
+    }
+
+    void erase(size_t start, size_t end) {
+        assert(start < end&& start >= 0 && end <= length());
+    }
+
+    template<typename T>
+    void insert(size_t index, T value) {
+        assert(index >= 0 && index <= length());
+
+    }
+
+    void insert(size_t index, bool value) {
+        assert(index >= 0 && index <= length());
+
+    }
+
+    void changeSize(size_t newSize) {
+        assert(newSize >= 0);
     }
 
     string toStringAfter(size_t index) {
