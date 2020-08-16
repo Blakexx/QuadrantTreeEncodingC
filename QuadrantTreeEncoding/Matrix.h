@@ -18,6 +18,15 @@ public:
         matrix = new T[rows * cols];
     }
 
+    Matrix(size_t rows, size_t cols, T initialValue) {
+        this(rows, cols);
+        for (size_t r = 0; r < rows; r++) {
+            for (size_t c = 0; c < cols; c++) {
+                set(r, c, initialValue);
+            }
+        }
+    }
+
     ~Matrix() {
         delete matrix;
     }

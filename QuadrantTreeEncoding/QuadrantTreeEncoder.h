@@ -10,13 +10,13 @@ class QuadrantTreeEncoder{
 
 private:
 
-    template<typename T, size_t N>
-    static bool doPathSetup(StackFrame& frame, MemoryController* bits, Matrix<T>* matrix, const BitEncoder<T, N>& dataEncoder, T& defaultItem) {
+    template<typename T>
+    static bool doPathSetup(StackFrame& frame, MemoryController* bits, Matrix<T>* matrix, T& defaultItem) {
         size_t prevLength = bits->size();
         if (frame.size() > 1) {
             bits->addBit(true);
         }
-        bool gotData = encodeHelper(frame, bits, matrix, dataEncoder, defaultItem);
+        bool gotData = encodeHelper(frame, bits, matrix, defaultItem);
         if (frame.size() > 1 && !gotData) {
             bits->erase(prevLength, bits->size());
             bits->addBit(false);
@@ -25,8 +25,8 @@ private:
     }
 
 
-    template<typename T, size_t N>
-    static bool encodeHelper(StackFrame& frame, MemoryController* bits, Matrix<T>* matrix, const BitEncoder<T, N>& dataEncoder, T& defaultItem) {
+    template<typename T>
+    static bool encodeHelper(StackFrame& frame, MemoryController* bits, Matrix<T>* matrix, T& defaultItem) {
         int yPos = frame.yPos, xPos = frame.xPos;
         if (!matrix->validPos(yPos, xPos)) {
             return false;
@@ -38,14 +38,14 @@ private:
                 return false;
             }
             bits->addBit(true);
-            bits->addBits(item, dataEncoder);
+            bits->addBits(&item);
             return true;
         }
         else {
             bool foundData = false;
             list<StackFrame>* children = frame.getChildren();
             for (auto it = children->begin(); it!=children->end(); it++) {
-                foundData |= doPathSetup(*it, bits, matrix, dataEncoder, defaultItem);
+                foundData |= doPathSetup(*it, bits, matrix, defaultItem);
             }
             delete children;
             return foundData;
@@ -62,12 +62,12 @@ public:
         cout << "Ref size: " << refSize << endl;
     }
 
-    template<typename T, size_t N>
-    static MemoryController* encodeMatrix(Matrix<T>* matrix, const BitEncoder<T, N>& dataEncoder) {
+    template<typename T>
+    static MemoryController* encodeMatrix(Matrix<T>* matrix) {
         MemoryController* bits = new MemoryController();
-        size_t height = matrix->getRows();
-        size_t width = matrix->getCols();
-        assert(height > 0 && width > 0 && N > 0);
+        int height = matrix->getRows();
+        int width = matrix->getCols();
+        assert(height > 0 && width > 0);
         refSize = 0;
         dataSize = 0;
         headerSize = 0;
@@ -84,15 +84,14 @@ public:
             }
         }
         assert(maxCount > 0);
-        dataSize = (matrix->size() - maxCount) * N;
-        bits->addBits(N, intEncoder<size_t, 8>);
-        bits->addBits(defaultItem, dataEncoder);
-        bits->addBits(height, intEncoder<size_t, 32>);
-        bits->addBits(width, intEncoder<size_t, 32>);
-        headerSize = 8 + N + 32 + 32;
+        dataSize = (matrix->size() - maxCount) * sizeof(T);
+        bits->addBits(&defaultItem);
+        bits->addBits(&height);
+        bits->addBits(&width);
+        headerSize = bits->size();
         if (dataSize > 0) {
             StackFrame baseFrame(0, 0, height, width);
-            doPathSetup(baseFrame, bits, matrix, dataEncoder, defaultItem);
+            doPathSetup(baseFrame, bits, matrix, defaultItem);
         }
         else {
             bits->addBit(false);
@@ -102,23 +101,26 @@ public:
         return bits;
     }
 
-    template<typename T, size_t N>
-    static Matrix<T>* decodeMatrix(MemoryController* bits, const BitDecoder<T, N>& dataDecoder) {
-        T defaultItem = bits->getBits(8, dataDecoder);
-        size_t height = bits->getBits(8 + N, intDecoder<size_t, 32>);
-        size_t width = bits->getBits(8 + N + 32, intDecoder<size_t, 32>);
+    template<typename T>
+    static Matrix<T>* decodeMatrix(MemoryController* bits) {
+        size_t index = 0;
+        T defaultItem = *bits->getBits<T>(0);
+        index += sizeof(T) * CHAR_BIT;
+        int height = *bits->getBits<int>(index);
+        index += sizeof(height) * CHAR_BIT;
+        int width = *bits->getBits<int>(index);
+        index += sizeof(width) * CHAR_BIT;
         list<StackFrame> stack;
         stack.push_back(StackFrame(0, 0, height, width));
         Matrix<T>* matrix = new Matrix<T>(height,width);
-        size_t index = 8+N+32+32;
         while (stack.size() > 0 && index<bits->size()) {
             bool nextInst = bits->getBit(index++);
             StackFrame current = stack.back();
             bool readMode = current.width <= 1 && current.height <= 1;;
             if (nextInst) {
                 if (readMode) {
-                    T data = bits->getBits(index,dataDecoder);
-                    index += N;
+                    T data = *bits->getBits<T>(index);
+                    index += sizeof(T) * CHAR_BIT;
                     matrix->set(current.yPos,current.xPos,data);
                     stack.pop_back();
                 }

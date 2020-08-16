@@ -3,10 +3,12 @@
 #include "Matrix.h"
 
 template<typename T>
-Matrix<T>* generateMatrix(size_t rows, size_t cols, double fullness, function<size_t(size_t,vector<size_t>&)> pointPicker, function<T(size_t, size_t)> valuePicker, T defaultValue) {
+Matrix<T>* generateMatrix(size_t rows, size_t cols, double fullness, const function<void(Matrix<T>*)>& generator, T defaultValue) {
+    cout << "Generating Matrix..." << endl;
     size_t count = (size_t)round(rows * cols * fullness);
     vector<size_t> points;
-    Matrix<T>* matrix = new Matrix<T>(rows,cols);
+    Matrix<T>* matrix = new Matrix<T>(rows,cols,defaultValue);
+    generator(matrix);
     for (size_t r = 0; r < rows; r++) {
         for (size_t c = 0; c < cols; c++) {
             matrix->set(r, c, defaultValue);
@@ -19,6 +21,7 @@ Matrix<T>* generateMatrix(size_t rows, size_t cols, double fullness, function<si
         size_t c = point % cols;
         matrix->set(r,c,valuePicker(r,c));
     }
+    cout << "Matrix Generated!" << endl;
     return matrix;
 }
 
@@ -39,7 +42,7 @@ void printMatrix(Matrix<T>* matrix) {
 }
 
 template<typename T>
-inline T readData(string name, function<bool(T)> tester) {
+T readData(string name, function<bool(T)> tester) {
     T value;
     bool failed = false;
     do {
