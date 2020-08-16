@@ -6,17 +6,12 @@
 
 int main()
 {
-    auto valuePicker = [](size_t r, size_t c)->int {
-        return (rand()%127) + 1;
-    };
-    auto pointPicker = [](size_t num, vector<size_t>& points) {
-        size_t index = rand() % points.size();
-        size_t point = points[index];
-        points.erase(points.begin() + index, points.begin() + index + 1);
-        return point;
-    };
-    auto generator = [](Matrix<int>* matrix) {
-
+    auto generator = [](Matrix<int>* matrix, size_t count) {
+        for (size_t num = 0; num < count; num++) {
+            int toSet = (rand() % 127) + 1;
+            matrix->set(num, toSet);
+        }
+        matrix->randomShuffle();
     };
     auto intTester = [](int data)->bool {
         return data>=0;
@@ -32,7 +27,7 @@ int main()
     cout << "Begin Encoding..." << endl;
     MemoryController* bits = QuadrantTreeEncoder::encodeMatrix(matrix);
     QuadrantTreeEncoder::printAnalytics();
-    cout << bits->toStringAfter(QuadrantTreeEncoder::headerSize) << endl;
+    //cout << bits->toStringAfter(QuadrantTreeEncoder::headerSize) << endl;
     Matrix<int>* decoded = QuadrantTreeEncoder::decodeMatrix<int>(bits);
     cout << "Decoded: " << endl;
     //printMatrix(decoded);

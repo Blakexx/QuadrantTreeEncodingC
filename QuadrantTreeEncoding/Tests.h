@@ -3,25 +3,11 @@
 #include "Matrix.h"
 
 template<typename T>
-Matrix<T>* generateMatrix(size_t rows, size_t cols, double fullness, const function<void(Matrix<T>*)>& generator, T defaultValue) {
-    cout << "Generating Matrix..." << endl;
+Matrix<T>* generateMatrix(size_t rows, size_t cols, double fullness, const function<void(Matrix<T>*, size_t)>& generator, T defaultValue) {
     size_t count = (size_t)round(rows * cols * fullness);
     vector<size_t> points;
     Matrix<T>* matrix = new Matrix<T>(rows,cols,defaultValue);
-    generator(matrix);
-    for (size_t r = 0; r < rows; r++) {
-        for (size_t c = 0; c < cols; c++) {
-            matrix->set(r, c, defaultValue);
-            points.push_back(r*cols+c);
-        }
-    }
-    for (size_t num = 0; num < count; num++) {
-        size_t point = pointPicker(num, points);
-        size_t r = point / cols;
-        size_t c = point % cols;
-        matrix->set(r,c,valuePicker(r,c));
-    }
-    cout << "Matrix Generated!" << endl;
+    generator(matrix, count);
     return matrix;
 }
 
