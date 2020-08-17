@@ -13,40 +13,34 @@ private:
     size_t bitSize;
 
     void ensureCapacity(size_t toAdd) {
-        //cout << "Ensure Capacity: " << toAdd << ", " << size() << endl;
         if (toAdd <= 0) {
-            cout << "toAdd <= 0 " << endl;
             return;
         }
         if (size() + toAdd <= bits->length()) {
-            //cout << "ENOUGH CAPACITY" << endl;
             bitSize += toAdd;
             return;
         }
         int toMult = logBaseCeil(size() + toAdd,2) - logBaseCeil(bits->length(), 2);
         toMult <<= 1;
         BitList* newList = new BitList(bits->length() * toMult);
-        //cout << "COPYING TO NEW CONTAINER: " << bits->toString() << endl;
-        newList->setRaw(0,bits->getRaw(0,size()),size());
+        byte* toSet = bits->getRaw(0, size());
+        newList->setRaw(0, toSet, size());
+        delete toSet;
         delete bits;
         bits = newList;
-        //cout << "newList: " << newList->toString() << endl;
-        //cout << "COPY FINISHED: " << bits->toString() << endl;
         bitSize += toAdd;
     }
 
     void copyBits(size_t origin, size_t dest, size_t toCopy) {
         assert(validIndex(origin)&&validIndex(origin+toCopy));
-        //cout << "COPYING: " << origin << ", " << dest << ", " << toCopy << ", " << size() << endl;
-        //cout << dest + toCopy - size() << endl;
         if (dest + toCopy > size()) {
             ensureCapacity(dest + toCopy - size());
         }
-        //cout << "Copy Begin: " << origin << ", " << toCopy << ", " << bits->toString() << endl;
         if (toCopy > 0) {
-            bits->setRaw(dest, bits->getRaw(origin, toCopy), toCopy);
+            byte* toSet = bits->getRaw(origin, toCopy);
+            bits->setRaw(dest, toSet, toCopy);
+            delete toSet;
         }
-        //cout << "Copy End: " << bits->toString() << endl;
     }
 
     bool validIndex(size_t index) {
@@ -106,14 +100,15 @@ public:
 
     void erase(size_t start, size_t end) {
         assert(start >= 0 && end <= size() && start <= end);
-        //cout << "ERASE: [" << start << ", " << end << ")" << endl;
         copyBits(end,start,size()-end);
         bitSize -= (end - start);
     }
 
     void trim() {
         BitList* trimmed = new BitList(size());
-        trimmed->setRaw(0,bits->getRaw(0,size()),size());
+        byte* toSet = bits->getRaw(0, size());
+        trimmed->setRaw(0,toSet,size());
+        delete toSet;
         delete bits;
         bits = trimmed;
     }

@@ -31,7 +31,7 @@ public:
     }
 
     ~Matrix() {
-        delete matrix;
+        delete[] matrix;
     }
 
     T get(size_t rawIndex) {

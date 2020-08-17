@@ -104,24 +104,31 @@ public:
     template<typename T>
     static Matrix<T>* decodeMatrix(MemoryController* bits) {
         size_t index = 0;
-        T defaultItem = *bits->getBits<T>(0);
+        T* defaultPointer = bits->getBits<T>(0);
+        T defaultItem = *defaultPointer;
+        delete defaultPointer;
         index += sizeof(T) * CHAR_BIT;
-        int height = *bits->getBits<int>(index);
+        int* hPointer = bits->getBits<int>(index);
+        int height = *hPointer;
+        delete hPointer;
         index += sizeof(height) * CHAR_BIT;
-        int width = *bits->getBits<int>(index);
+        int* wPointer = bits->getBits<int>(index);
+        int width = *wPointer;
+        delete wPointer;
         index += sizeof(width) * CHAR_BIT;
         list<StackFrame> stack;
         stack.push_back(StackFrame(0, 0, height, width));
-        Matrix<T>* matrix = new Matrix<T>(height,width);
+        Matrix<T>* matrix = new Matrix<T>(height, width);
         while (stack.size() > 0 && index<bits->size()) {
             bool nextInst = bits->getBit(index++);
             StackFrame current = stack.back();
             bool readMode = current.width <= 1 && current.height <= 1;;
             if (nextInst) {
                 if (readMode) {
-                    T data = *bits->getBits<T>(index);
+                    T* data = bits->getBits<T>(index);
                     index += sizeof(T) * CHAR_BIT;
-                    matrix->set(current.yPos,current.xPos,data);
+                    matrix->set(current.yPos,current.xPos,*data);
+                    delete data;
                     stack.pop_back();
                 }
                 else {

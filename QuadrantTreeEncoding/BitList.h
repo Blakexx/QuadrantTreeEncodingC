@@ -43,7 +43,7 @@ public:
     }
 
     ~BitList() {
-        delete container;
+        delete[] container;
     }
 
     size_t length() {
@@ -51,10 +51,6 @@ public:
     }
 
     void setRaw(size_t index, byte* bitData, size_t N) {
-        if (N > 1) {
-            //cout << "Current State: " << rayToString(container, roundUpDiv(length(), CHAR_BIT)) << endl;
-            //cout << "Setting: (" << index << ", " << N << ") = " << rayToString(bitData, roundUpDiv(N, CHAR_BIT)) << endl;
-        }
         assert(index >= 0 && index + N <= length());
         if (N == 0) {
             return;
@@ -91,10 +87,6 @@ public:
     }
 
     byte* getRaw(size_t index, size_t N) {
-        if (N > 1) {
-            //cout << "Current State: " << rayToString(container, roundUpDiv(length(), CHAR_BIT)) << endl;
-            //cout << "Getting: " << index << ", " << N << endl;
-        }
         assert(index >= 0 && index + N <= length());
         size_t byteLength = roundUpDiv(N, CHAR_BIT);
         byte* returned = new byte[byteLength];
@@ -103,9 +95,6 @@ public:
         }
         for (size_t i = 0; i < byteLength; i++) {
             returned[i] = byte{ 0 };
-        }
-        if (N > 1) {
-            //cout << "Initial: " << rayToString(returned, byteLength) << endl;
         }
         size_t freeBits = 0;
         size_t bitIndex = index % CHAR_BIT;
@@ -124,9 +113,6 @@ public:
             returned[dataConIndex] |= data;
             bitIndex += freeBits;
         }
-        if (N > 1) {
-            //cout << "Returned: " << rayToString(returned, byteLength) << endl;
-        }
         return returned;
     }
 
@@ -136,7 +122,10 @@ public:
     }
 
     bool get(size_t index) {
-        return *(bool*)getRaw(index,1) != 0;
+        byte* returned = getRaw(index, 1);
+        bool value = *(bool*)returned != 0;
+        delete[] returned;
+        return value;
     }
 
     void erase(size_t start, size_t end) {
