@@ -117,8 +117,11 @@ public:
     }
 
     template<typename T>
-    T* get(size_t index) {
-        return (T*)getRaw(index, sizeof(T) * CHAR_BIT);
+    T get(size_t index) {
+        byte* returned = getRaw(index, sizeof(T) * CHAR_BIT);
+        T value = *(T*)returned;
+        delete[] returned;
+        return value;
     }
 
     bool get(size_t index) {

@@ -63,7 +63,7 @@ public:
     }
 
     template<class T>
-    T* getBits(size_t index) {
+    T getBits(size_t index) {
         return bits->get<T>(index);
     }
 

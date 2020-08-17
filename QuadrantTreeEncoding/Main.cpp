@@ -3,6 +3,7 @@
 #include "MemoryController.h"
 #include "QuadrantTreeEncoder.h"
 #include "BitList.h"
+#include "LRUCache.h"
 
 int main()
 {

@@ -65,8 +65,8 @@ public:
     template<typename T>
     static MemoryController* encodeMatrix(Matrix<T>* matrix) {
         MemoryController* bits = new MemoryController();
-        int height = matrix->getRows();
-        int width = matrix->getCols();
+        size_t height = matrix->getRows();
+        size_t width = matrix->getCols();
         assert(height > 0 && width > 0);
         refSize = 0;
         dataSize = 0;
@@ -104,17 +104,11 @@ public:
     template<typename T>
     static Matrix<T>* decodeMatrix(MemoryController* bits) {
         size_t index = 0;
-        T* defaultPointer = bits->getBits<T>(0);
-        T defaultItem = *defaultPointer;
-        delete defaultPointer;
+        T defaultItem = bits->getBits<T>(0);
         index += sizeof(T) * CHAR_BIT;
-        int* hPointer = bits->getBits<int>(index);
-        int height = *hPointer;
-        delete hPointer;
+        size_t height = bits->getBits<size_t>(index);
         index += sizeof(height) * CHAR_BIT;
-        int* wPointer = bits->getBits<int>(index);
-        int width = *wPointer;
-        delete wPointer;
+        size_t width = bits->getBits<size_t>(index);
         index += sizeof(width) * CHAR_BIT;
         list<StackFrame> stack;
         stack.push_back(StackFrame(0, 0, height, width));
@@ -125,10 +119,9 @@ public:
             bool readMode = current.width <= 1 && current.height <= 1;;
             if (nextInst) {
                 if (readMode) {
-                    T* data = bits->getBits<T>(index);
+                    T data = bits->getBits<T>(index);
                     index += sizeof(T) * CHAR_BIT;
-                    matrix->set(current.yPos,current.xPos,*data);
-                    delete data;
+                    matrix->set(current.yPos,current.xPos,data);
                     stack.pop_back();
                 }
                 else {

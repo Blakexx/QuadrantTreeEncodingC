@@ -148,8 +148,11 @@
   <ItemGroup>
     <ClInclude Include="BitList.h" />
     <ClInclude Include="CachedTreeMatrix.h" />
+    <ClInclude Include="CacheLinkedList.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Library.h" />
+    <ClInclude Include="ListNode.h" />
+    <ClInclude Include="LRUCache.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MatrixEncoder.h" />
     <ClInclude Include="MemoryController.h" />
