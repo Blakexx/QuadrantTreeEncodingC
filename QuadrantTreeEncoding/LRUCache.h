@@ -13,12 +13,13 @@ private:
     CacheLinkedList<Item>* controller;
     size_t capacity;
     
-    void remove(ListNode<Item>* toRemove) {
+    bool remove(ListNode<Item>* toRemove) {
         if (toRemove == NULL) {
-            return;
+            return false;
         }
         lookup.erase(toRemove->value.first);
         controller->remove(toRemove);
+        return true;
     }
 
 public:
@@ -43,7 +44,9 @@ public:
     void put(K key, V value) {
         ListNode<Item>* val = lookup[key];
         if (val == NULL && capacity == controller->size()) {
-            remove(controller->getFirst());
+            if (!remove(controller->getFirst())) {
+                return;
+            }
         }
         else if (val != NULL) {
             controller->remove(val);
@@ -51,8 +54,8 @@ public:
         lookup[key] = controller->add(Item(key,value));
     }
 
-    void remove(K key) {
-        remove(lookup[key]);
+    bool remove(K key) {
+        return remove(lookup[key]);
     }
 
     bool contains(K key) {
@@ -62,7 +65,7 @@ public:
     V getNoCache(K key) {
         ListNode<Item>* val = lookup[key];
         assert(val != NULL);
-        return val->value.first;
+        return val->value.second;
     }
 
     V get(K key) {
@@ -70,11 +73,18 @@ public:
         return getNoCache(key);
     }
 
-    string toString(const function<string(Item)>& stringMapper) {
-        string returned = "[";
+    string toString() {
+        string returned = "";
+        returned.append("CAPACITY: ");
+        returned.append(to_string(capacity));
+        returned.append(", [");
         ListNode<Item>* first = controller->getFirst();
         while (first != NULL) {
-            returned.append(stringMapper(first->value));
+            returned.append("(");
+            returned.append(StringConverter<K>::convert(first->value.first));
+            returned.append("=");
+            returned.append(StringConverter<V>::convert(first->value.second));
+            returned.append(")");
             first = controller->nullIfRoot(first->next);
             if (first != NULL) {
                 returned.append(", ");

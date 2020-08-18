@@ -16,8 +16,12 @@
 
 using namespace std;
 
+inline double logBase(size_t value, size_t base) {
+    return log10(value) / log10(base);
+}
+
 inline size_t logBaseCeil(size_t value, size_t base) {
-    return (size_t)ceil(log10(value) / log10(base));
+    return (size_t)ceil(logBase(value,base));
 }
 
 inline size_t roundUpDiv(size_t numerator, size_t denominator) {

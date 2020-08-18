@@ -38,7 +38,7 @@ private:
                 return false;
             }
             bits->addBit(true);
-            bits->addBits(&item);
+            bits->addBits(item);
             return true;
         }
         else {
@@ -84,10 +84,10 @@ public:
             }
         }
         assert(maxCount > 0);
-        dataSize = (matrix->size() - maxCount) * sizeof(T);
-        bits->addBits(&defaultItem);
-        bits->addBits(&height);
-        bits->addBits(&width);
+        dataSize = (matrix->size() - maxCount) * sizeof(T) * CHAR_BIT;
+        bits->addBits(defaultItem);
+        bits->addBits(height);
+        bits->addBits(width);
         headerSize = bits->size();
         if (dataSize > 0) {
             StackFrame baseFrame(0, 0, height, width);

@@ -1,7 +1,7 @@
 #include "Library.h"
 #include "StackFrame.h"
 
-StackFrame::StackFrame(int yPos, int xPos, int height, int width, StackFrame* parent, int quadrant) {
+StackFrame::StackFrame(int yPos, int xPos, int height, int width, StackFrame* parent, int quadrant){
     this->height = height;
     this->width = width;
     this->xPos = xPos;
@@ -10,19 +10,19 @@ StackFrame::StackFrame(int yPos, int xPos, int height, int width, StackFrame* pa
     this->quadrant = quadrant;
 }
 
-int StackFrame::size() {
+const int StackFrame::size() {
     return height * width;
 }
 
-bool StackFrame::contains(int r, int c) {
+const bool StackFrame::contains(int r, int c) {
     return r >= yPos && r < yPos + height && c >= xPos && c < xPos + width;
 }
 
-bool StackFrame::operator==(StackFrame other) {
+const bool StackFrame::operator==(const StackFrame& other) {
     return (yPos == other.yPos) && (xPos == other.xPos) && (height == other.height) && (width == other.width);
 }
 
-bool StackFrame::operator!=(StackFrame other) {
+const bool StackFrame::operator!=(const StackFrame& other) {
     return !(*this==other);
 }
 
@@ -31,25 +31,37 @@ int StackFrame::getQuadrant(int r, int c) {
 }
 
 StackFrame StackFrame::getQuadrantFrame(int quadrant) {
-    StackFrame returned = nullFrame;
+    StackFrame returned(-1,-1,-1,-1,this,quadrant);
     switch (quadrant) {
-    case 0: 
-        returned = StackFrame(yPos, xPos, nHeight(), nWidth(), this, 0);
+    case 0:
+        returned.yPos = yPos;
+        returned.xPos = xPos;
+        returned.height = nHeight();
+        returned.width = nWidth();
         break;
     case 1:
-        returned = StackFrame(yPos, newX(), nHeight(), wDif(), this, 1);
+        returned.yPos = yPos;
+        returned.xPos = newX();
+        returned.height = nHeight();
+        returned.width = wDif();
         break;
     case 2:
-        returned = StackFrame(newY(), xPos, hDif(), nWidth(), this, 2);
+        returned.yPos = newY();
+        returned.xPos = xPos;
+        returned.height = hDif();
+        returned.width = nWidth();
         break;
     case 3:
-        returned = StackFrame(newY(), newX(), hDif(), wDif(), this, 3);
+        returned.yPos = newY();
+        returned.xPos = newX();
+        returned.height = hDif();
+        returned.width = wDif();
         break;
     }
     if (returned.size() == 0) {
         return nullFrame;
     }
-    return returned;
+    return returned;;
 }
 
 void StackFrame::pushFrame(list<StackFrame>& stack) {
@@ -63,7 +75,7 @@ void StackFrame::pushFrame(list<StackFrame>& stack) {
     }
 }
 
-StackFrame StackFrame::getChildContaining(int r, int c) {
+const StackFrame StackFrame::getChildContaining(int r, int c) {
     return getQuadrantFrame(getQuadrant(r, c));
 }
 
@@ -90,6 +102,6 @@ list<StackFrame>* StackFrame::getChildrenAfter(int r, int c) {
     return getChildrenInRange(getQuadrant(r, c) + 1, 3);
 }
 
-string StackFrame::toString() {
+const string StackFrame::toString() {
     return "(" + to_string(yPos) + ", " + to_string(xPos) + ", " + to_string(height) + ", " + to_string(width) + ")";
 }

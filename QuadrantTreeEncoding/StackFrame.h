@@ -44,17 +44,17 @@ public:
     int height, width, xPos, yPos, quadrant;
     StackFrame* parent;
 
-    StackFrame(int yPos, int xPos, int height, int width, StackFrame* parent=NULL, int quadrant=-1);
+    StackFrame(int yPos, int xPos, int height, int width, StackFrame* parent = NULL, int quadrant = -1);
 
-    int size();
+    const int size();
 
-    bool contains(int r, int c);
+    const bool contains(int r, int c);
 
-    bool operator==(StackFrame other);
+    const bool operator==(const StackFrame& other);
 
-    bool operator!=(StackFrame other);
+    const bool operator!=(const StackFrame& other);
 
-    StackFrame getChildContaining(int r, int c);
+    const StackFrame getChildContaining(int r, int c);
 
     static void pushFrame(list<StackFrame>& stack);
 
@@ -64,7 +64,7 @@ public:
 
     list<StackFrame>* getChildrenAfter(int r, int c);
 
-    string toString();
+    const string toString();
 };
 
-static const StackFrame nullFrame(-1, -1, -1, -1);
+static const StackFrame nullFrame(-1,-1,-1,-1);

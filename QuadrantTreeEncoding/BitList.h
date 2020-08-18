@@ -33,7 +33,7 @@ private:
 public:
 
     BitList(size_t bitLength) {
-        assert(bitLength > 0);
+        assert(bitLength >= 0);
         this->bitLength = bitLength;
         size_t byteLength = roundUpDiv(bitLength, CHAR_BIT);
         container = new byte[byteLength];
@@ -77,8 +77,8 @@ public:
     }
 
     template<typename T>
-    void set(size_t index, T* value) {
-        setRaw(index,(byte*)value,sizeof(T)*CHAR_BIT);
+    void set(size_t index, T& value) {
+        setRaw(index,(byte*)&value,sizeof(T)*CHAR_BIT);
     }
 
     void set(size_t index, bool value) {

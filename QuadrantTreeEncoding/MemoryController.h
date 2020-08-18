@@ -20,7 +20,7 @@ private:
             bitSize += toAdd;
             return;
         }
-        int toMult = logBaseCeil(size() + toAdd,2) - logBaseCeil(bits->length(), 2);
+        int toMult = (int)ceil(logBase(size() + toAdd,2) - logBase(bits->length(), 2));
         toMult <<= 1;
         BitList* newList = new BitList(bits->length() * toMult);
         byte* toSet = bits->getRaw(0, size());
@@ -29,18 +29,6 @@ private:
         delete bits;
         bits = newList;
         bitSize += toAdd;
-    }
-
-    void copyBits(size_t origin, size_t dest, size_t toCopy) {
-        assert(validIndex(origin)&&validIndex(origin+toCopy));
-        if (dest + toCopy > size()) {
-            ensureCapacity(dest + toCopy - size());
-        }
-        if (toCopy > 0) {
-            byte* toSet = bits->getRaw(origin, toCopy);
-            bits->setRaw(dest, toSet, toCopy);
-            delete toSet;
-        }
     }
 
     bool validIndex(size_t index) {
@@ -58,6 +46,18 @@ public:
         delete bits;
     }
 
+    void copyBits(size_t origin, size_t dest, size_t toCopy) {
+        assert(validIndex(origin) && validIndex(origin + toCopy));
+        if (dest + toCopy > size()) {
+            ensureCapacity(dest + toCopy - size());
+        }
+        if (toCopy > 0) {
+            byte* toSet = bits->getRaw(origin, toCopy);
+            bits->setRaw(dest, toSet, toCopy);
+            delete toSet;
+        }
+    }
+
     bool getBit(size_t index) {
         return bits->get(index);
     }
@@ -72,7 +72,7 @@ public:
     }
 
     template<class T>
-    void addBits(T* value) {
+    void addBits(T& value) {
         insert<T>(size(), value);
     }
 
@@ -81,8 +81,16 @@ public:
     }
 
     template<typename T>
-    void setBits(size_t index, T* value) {
+    void setBits(size_t index, T& value) {
         bits->set<T>(index, value);
+    }
+
+    void setContollerBits(size_t index, MemoryController* other) {
+        assert(validIndex(index));
+        BitList* otherList = other->bits;
+        byte* toSet = otherList->getRaw(0, other->size());
+        bits->setRaw(index, toSet, other->size());
+        delete toSet;
     }
 
     void insert(size_t index, bool value) {
@@ -92,7 +100,7 @@ public:
     }
 
     template<typename T>
-    void insert(size_t index, T* value) {
+    void insert(size_t index, T& value) {
         assert(validIndex(index));
         copyBits(index, index + sizeof(T) * CHAR_BIT, size()-index);
         bits->set<T>(index, value);

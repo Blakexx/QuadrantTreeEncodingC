@@ -1,5 +1,6 @@
 #pragma once
 #include "Library.h"
+#include "StringConverter.h"
 
 template<typename T>
 class Matrix {
@@ -71,6 +72,21 @@ public:
     void randomShuffle() {
         unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
         shuffle(&matrix[0],&matrix[rows*cols-1], default_random_engine(seed));
+    }
+
+    string toString() {
+        string returned = "";
+        for (size_t r = 0; r < rows; r++) {
+            returned.append("[");
+            for (size_t c = 0; c < cols; c++) {
+                returned.append(StringConverter<T>::convert(get(r, c)));
+                if (c < cols - 1) {
+                    returned.append(", ");
+                }
+            }
+            returned.append("]\n");
+        }
+        return returned;
     }
 
 };
