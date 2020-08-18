@@ -38,7 +38,7 @@ int main()
     cout << treeMatrix.toString() << endl;
     for (size_t r = 0; r < treeMatrix.height(); r++) {
         for (size_t c = 0; c < treeMatrix.width(); c++) {
-            int toSet = 0;
+            int toSet = 5;
             cout << "SETTING (" << r << ", " << c << ") = " << toSet << endl;
             treeMatrix.set(r, c, toSet);
             cout << "RETURNED VAL = " << treeMatrix.get(r, c) << endl;
