@@ -21,9 +21,6 @@
     <ClCompile Include="QuadrantTreeEncoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CachedTreeMatrix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StackFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
